@@ -65,7 +65,7 @@ def update_domains(domains, username):
         file_path = os.path.join(json_dir, f'{username}_domains.json')
         # Load current domains
         current_domains = load_domains(username)
-        
+        conn.commit()
         # Update or add new domains
         for domain in domains:
             # Check if domain already exists

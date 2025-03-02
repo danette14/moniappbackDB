@@ -14,9 +14,7 @@ from oauthlib.oauth2 import WebApplicationClient
 import json
 import time
 from utils import Utils
-from elasticapm.contrib.flask import ElasticAPM
-from elasticapm import set_custom_context, capture_span, traces
-import elasticapm
+
 
 
 utils = Utils()
@@ -24,14 +22,6 @@ utils = Utils()
 # Initialize Flask application
 app = Flask(__name__)
 
-# Initialize Elastic APM
-
-apm_client= elasticapm.Client(service_name='BackendService_Ilya',  
-                            server_url=(Config.SERVER_URL),
-                            secret_token=(Config.SECRET_TOKEN),
-                            environment='dev',
-                            debug=True
-)
 
 
 # Enable CORS for all routes
@@ -172,8 +162,7 @@ def google_callback():
 @app.route("/api/domains/check", methods=['POST'])
 @utils.measure_this
 def check_domains():
-    apm_client.begin_transaction('domain_check')
-    apm_context=traces.execution_context.get_transaction()
+    
     """Check status of provided domains"""
     try:
         data = request.json
@@ -185,14 +174,13 @@ def check_domains():
         if not domains or not username:
             return jsonify({"error": "Missing required data"}), 400
         
-        results = check_url(domains, username , apm_context)
+        results = check_url(domains, username)
 
-        #logger.info(f"Results: {results}")
-        apm_client.end_transaction('domain_check' , 'success')
+       
         return jsonify(results)
     except Exception as e:
         logger.error(f"Domain check error: {str(e)}")
-        apm_client.end_transaction('domain_check' , 'failed')
+        
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/domains/list", methods=['GET'])
