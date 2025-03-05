@@ -71,3 +71,81 @@ def check_username_DB (username):
     finally:
         cur.close()
         conn.close()
+
+
+def load_domains_DB(username):
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute('''
+                    SELECT s.url, s.status_code, s.ssl_status, s.expiration_date, s.issuer
+                    FROM scans s 
+                    JOIN users u ON s.user_id = u.user_id
+                    WHERE u.username = %s''', (username,))
+        results = cur.fetchall()
+        domains = []
+        if results:
+            for result in results:
+                  domains.append({
+                    'url': result[0],
+                    'status_code': result[1],
+                    'ssl_status': result[2],
+                    'expiration_date': result[3],
+                    'issuer': result[4]
+                })
+            return domains
+        else:
+            return []
+    except Exception as e:
+        logger.error(f"Error loading domains: {e}")
+        return []
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()
+
+def update_domains_DB(domains, username):
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        for domain in domains:
+            cur.execute('''
+                        INSERT INTO scans (url, status_code, ssl_status, expiration_date, issuer, user_id)
+                        VALUES (%s, %s, %s, %s, %s,(SELECT user_id FROM users WHERE username = %s))
+                        ON CONFLICT (user_id, url) DO UPDATE
+                        SET status_code = EXCLUDED.status_code,
+                            ssl_status = EXCLUDED.ssl_status,
+                            expiration_date = EXCLUDED.expiration_date,
+                            issuer = EXCLUDED.issuer
+                        ''', (domain['url'], domain['status_code'], domain['ssl_status'], domain['expiration_date'], domain['issuer'],username))
+        
+        conn.commit()
+        return True
+    except Exception as e:  
+        logger.error(f"Error updating domains: {e}")
+        return False
+    finally:
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()    
+
+def remove_domain_DB(domain_to_remove, username):
+    try:
+        conn = connect_db()
+        cur = conn.cursor()
+        cur.execute('''
+                    DELETE FROM scans
+                    WHERE url = %s AND user_id = (SELECT user_id FROM users WHERE username = %s)
+                    ''', (domain_to_remove, username))
+        conn.commit()
+        return True
+    except Exception as e:
+        logger.error(f"Error removing domain: {e}")
+        return False
+    finally:    
+        if cur:
+            cur.close()
+        if conn:
+            conn.close()

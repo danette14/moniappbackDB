@@ -14,6 +14,7 @@ from oauthlib.oauth2 import WebApplicationClient
 import json
 import time
 from utils import Utils
+import DBManagement
 
 
 
@@ -192,7 +193,8 @@ def get_domains():
         if not username:
             return jsonify({"error": "Username required"}), 400
             
-        domains = load_domains(username)
+        domains = DBManagement.load_domains_DB(username)
+        logger.info(f"Loaded {domains} domains for user: {username}")
         return jsonify(domains)
     except Exception as e:
         logger.error(f"Error loading domains: {str(e)}")
@@ -208,7 +210,7 @@ def remove_domain_endpoint():
         if not domain or not username:
             return jsonify({"error": "Missing required parameters"}), 400
             
-        if remove_domain(domain, username):
+        if DBManagement.remove_domain_DB(domain, username):
             logger.info(f"Domain removed: {domain} for user: {username}")
             return jsonify({"status": "success"})
         else:

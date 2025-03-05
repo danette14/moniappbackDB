@@ -8,6 +8,7 @@ from queue import Queue
 import time
 from config import logger , Config
 from DataManagement import update_domains
+import DBManagement
 
 def check_certificate(url):
     try:
@@ -105,7 +106,7 @@ def check_url_mt(domains, username):
     if len(results) < expected_count:
         logger.warning(f"Lost {expected_count - len(results)} checks for {username}")
 
-    update_domains(results, username)
+    DBManagement.update_domains_DB(results, username)
     return results
 
 if __name__ == '__main__':
