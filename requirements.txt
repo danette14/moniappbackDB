@@ -5,3 +5,4 @@ oauthlib==3.2.2
 APScheduler==3.10.4
 python-dotenv==1.0.0
 elastic-apm==6.23.0
+psycopg2-binary==2.9.10
