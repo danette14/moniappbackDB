@@ -4,7 +4,7 @@ from config import logger
 
 # Database connection parameters
 DB_PARAMS = {
-    'dbname': 'postgres',
+    'dbname': 'moniDB',
     'user': 'myuser',
     'password': 'mypassword',
     'host': 'localhost',
