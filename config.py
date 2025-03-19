@@ -41,6 +41,9 @@ class Config:
     SECRET_TOKEN = os.getenv('SECRET_TOKEN')
     SERVER_URL = os.getenv('SERVER_URL')
 
+    # Database Configuration
+    DB_HOST = os.getenv('DB_HOST')
+
 
 def setup_logger():
     """Setup logger with daily files for the backend service"""
