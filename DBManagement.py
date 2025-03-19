@@ -1,5 +1,5 @@
 import psycopg2
-from config import logger, config
+from config import logger, Config
 
 
 # Database connection parameters
@@ -7,7 +7,7 @@ DB_PARAMS = {
     'dbname': 'moniDB',
     'user': 'myuser',
     'password': 'mypassword',
-    'host': config.DB_HOST,
+    'host': Config.DB_HOST,
     'port': 5432
 }
 
